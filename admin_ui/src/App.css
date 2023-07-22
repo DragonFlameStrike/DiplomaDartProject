@@ -94,6 +94,56 @@
   color: #f60000;
 }
 
+/* Events.css */
+
+/* Center the container div */
+div.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Style the events list */
+div.events-list {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  width: 300px;
+}
+
+div.events-list h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+div.event-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+div.event-item input[type="radio"] {
+  margin-right: 5px;
+}
+
+/* Style the button */
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
