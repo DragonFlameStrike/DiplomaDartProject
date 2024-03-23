@@ -3,12 +3,10 @@ package ru.pankovdv.diploma.dartsignalfilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.pankovdv.diploma.dartsignalfilter.config.DSFConfig;
-import ru.pankovdv.diploma.dartsignalfilter.config.DataConfig;
 import ru.pankovdv.diploma.dartsignalfilter.domain.ResultDto;
 import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.EventsDtoResponse;
 import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.StationsDtoResponse;
 import ru.pankovdv.diploma.dartsignalfilter.httpParser.HttpParser;
-import ru.pankovdv.diploma.dartsignalfilter.httpParser.domain.EventDto;
 import ru.pankovdv.diploma.dartsignalfilter.service.SignalUiService;
 
 @RestController
@@ -20,9 +18,6 @@ public class SignalController {
 
     @Autowired
     HttpParser parser;
-
-    @Autowired
-    DataConfig dataConfig;
 
     @Autowired
     DSFConfig config;

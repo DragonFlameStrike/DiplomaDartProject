@@ -3,7 +3,6 @@ package ru.pankovdv.diploma.dartsignalfilter.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.pankovdv.diploma.dartsignalfilter.config.DSFConfig;
-import ru.pankovdv.diploma.dartsignalfilter.config.DataConfig;
 import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.FileParser;
 import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.StringDataParser;
 import ru.pankovdv.diploma.dartsignalfilter.domain.Measurement;
@@ -33,8 +32,6 @@ public class SignalUiService {
     private StringDataParser stringDataParser;
     @Autowired
     private SignalService signalService;
-    @Autowired
-    private DataConfig dataConfig;
     @Autowired
     DSFConfig config;
     @Autowired
