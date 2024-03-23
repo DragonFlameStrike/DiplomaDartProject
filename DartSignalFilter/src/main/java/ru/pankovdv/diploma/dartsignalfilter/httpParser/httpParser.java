@@ -1,5 +1,6 @@
 package ru.pankovdv.diploma.dartsignalfilter.httpParser;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -8,18 +9,37 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.pankovdv.diploma.dartsignalfilter.domain.Measurement;
+import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.EventEntity;
+import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.EventRepository;
+import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.StationEntity;
+import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.StationRepository;
 import ru.pankovdv.diploma.dartsignalfilter.httpParser.domain.EventDto;
 import ru.pankovdv.diploma.dartsignalfilter.httpParser.domain.EventsDto;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
+@Slf4j
 public class httpParser {
+
+    @Autowired
+    private StationRepository stationRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     private String startyear = "0000";
     private String startmonth = "00";
@@ -29,11 +49,11 @@ public class httpParser {
     private String endday = "00";
 
 
-    public String parseWithFullUrl(String seriestime){
+    public String parseWithFullUrl(String seriestime) {
         // URL для GET запроса
         String url = "https://www.ndbc.noaa.gov/station_page.php?station=56003" +
                 "&type=2" +
-                "&seriestime="+seriestime+
+                "&seriestime=" + seriestime +
                 "&startyear=" + startyear +
                 "&startmonth=" + startmonth +
                 "&startday=" + startday +
@@ -60,11 +80,70 @@ public class httpParser {
         return "";
     }
 
-    public EventsDto parseAllEvents() {
-        String url = "https://www.ndbc.noaa.gov/station_page.php?station=56003";
+    public void parseAllStations() {
+        log.info("Парсинг всех станций: старт.");
+        try (BufferedReader reader = new BufferedReader(new FileReader("stationlist.txt"))) {
+            String stationUrl;
+            Integer countLines = 0;
+            while ((stationUrl = reader.readLine()) != null) {
+                if (stationRepository.findByPathUrl(stationUrl) == null) {
+                    countLines++;
+                    String stationName = getStationName(stationUrl);
+                    var station = new StationEntity();
+                    station.setStationName(stationName);
+                    station.setPathUrl(stationUrl);
+                    station.setReadyToUse(false);
+                    stationRepository.save(station);
+                    log.info("Парсинг всех станций: Добавлена новая станция - {}.", stationName);
+                } else {
+                    log.info("Парсинг всех станций: Станция уже существует - {}.", stationUrl);
+                }
+            }
+            log.info("Парсинг всех станций: конец. Всего записей добавлено - {}.", countLines);
+
+            var stations = stationRepository.findAll();
+            log.info("Парсинг ивентов для всех станций: старт.");
+            for (StationEntity station : stations) {
+                if (!station.getReadyToUse()) {
+                    parseAllEvents(station.getPathUrl(), station);
+                } else {
+                    log.info("Парсинг ивентов для всех станций: станция {} уже обработана.", station);
+                }
+            }
+            log.info("Парсинг ивентов для всех станций: конец.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getStationName(String stationUrl) {
         try {
             // Выполняем GET запрос и получаем содержимое страницы
-            String pageContent = sendGetRequest(url);
+            String pageContent = sendGetRequest(stationUrl);
+
+            // Парсим HTML с помощью Jsoup
+            Document document = Jsoup.parse(pageContent);
+
+            // Извлекаем элемент <h1> с названием станции
+            Element h1Element = document.select("h1").first();
+
+            // Получаем текст из элемента
+            String stationName = h1Element.text();
+
+            // Возвращаем название станции
+            return stationName;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "Название отсутвует";
+    }
+
+    private void parseAllEvents(String stationUrl, StationEntity station) {
+        log.info("Парсинг ивентов для станции {}: старт.", stationUrl);
+        try {
+            // Выполняем GET запрос и получаем содержимое страницы
+            String pageContent = sendGetRequest(stationUrl);
 
             // Парсим HTML с помощью Jsoup
             Document document = Jsoup.parse(pageContent);
@@ -76,17 +155,28 @@ public class httpParser {
             // Ищем значение переменной event_date_array с помощью регулярного выражения
             List<String> eventDateArrayValue = extractEventDateArrayValues(scriptContent);
 
+            EventsDto events = eventDateArrayValueToDto(eventDateArrayValue);
 
-            // Выводим полученные данные
-            return eventDateArrayValueToDto(eventDateArrayValue);
+            for (EventDto eventDto: events.getEvents()) {
+                EventEntity eventEntity = new EventEntity();
+                eventEntity.setDate(eventDto.getDate());
+                eventEntity.setSeriesTime(eventDto.getSeriestime());
+                eventEntity.setStation(station);
+                eventRepository.save(eventEntity);
+
+                log.info("Парсинг ивентов для станции {}: сохранен новый ивент - {}.", stationUrl, eventEntity.getSeriesTime());
+                station.setReadyToUse(true);
+                stationRepository.save(station);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new EventsDto();
+        log.info("Парсинг ивентов для станции {}: конец.", stationUrl);
     }
 
     // Метод для отправки GET запроса и получения содержимого страницы
-    private  String sendGetRequest(String url) throws IOException {
+    private String sendGetRequest(String url) throws IOException {
         HttpClient httpClient = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet(url);
 
@@ -97,7 +187,7 @@ public class httpParser {
     }
 
     // Метод для извлечения всех значений переменной event_date_array с помощью регулярного выражения
-    private  List<String> extractEventDateArrayValues(String scriptContent) {
+    private List<String> extractEventDateArrayValues(String scriptContent) {
         List<String> eventDateArrayValues = new ArrayList<>();
         Pattern pattern = Pattern.compile("\n\t\t\"(.*?)\",");
         Matcher matcher = pattern.matcher(scriptContent);
@@ -110,10 +200,10 @@ public class httpParser {
         return eventDateArrayValues;
     }
 
-    private EventsDto eventDateArrayValueToDto(List<String> events){
+    private EventsDto eventDateArrayValueToDto(List<String> events) {
         EventsDto eventsDto = new EventsDto();
         List<EventDto> eventDtoList = new ArrayList<>();
-        for (String event: events) {
+        for (String event : events) {
             eventDtoList.add(convertStringToEventDto(event));
         }
         eventsDto.setEvents(eventDtoList);

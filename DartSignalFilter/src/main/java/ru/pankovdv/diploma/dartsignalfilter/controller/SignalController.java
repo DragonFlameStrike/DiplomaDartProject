@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.pankovdv.diploma.dartsignalfilter.config.DataConfig;
 import ru.pankovdv.diploma.dartsignalfilter.domain.ResultDto;
+import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.StationsDtoResponse;
 import ru.pankovdv.diploma.dartsignalfilter.httpParser.httpParser;
 import ru.pankovdv.diploma.dartsignalfilter.httpParser.domain.EventDto;
-import ru.pankovdv.diploma.dartsignalfilter.httpParser.domain.EventsDto;
 import ru.pankovdv.diploma.dartsignalfilter.service.SignalUiService;
 
 @RestController
@@ -35,9 +35,14 @@ public class SignalController {
         return resultDto;
     }
 
-    @GetMapping("/parse")
-    public @ResponseBody EventsDto parseDataFromHttp() {
-        return parser.parseAllEvents();
+    @GetMapping("/stations")
+    public @ResponseBody StationsDtoResponse getStations() {
+        return signalUiService.getStations();
+    }
+
+    @GetMapping("/parseAll")
+    public void parseStations() {
+        parser.parseAllStations();
     }
 
 //    @GetMapping("/filter/csv")

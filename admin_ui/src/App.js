@@ -4,15 +4,16 @@ import './App.css';
 import Header from "./component/header/Header";
 import Signals from "./component/signals/Signals";
 import Events from "./component/events/Events";
+import Stations from "./component/stations/Stations";
 
 function App() {
   return (
       <Router>
-          <div className='app'>
-              <nav>
+          <div>
+              <div>
                   <Header/>
-              </nav>
-              <div style={{ margin: '65px' }}>
+              </div>
+              <div style={{ margin: '20px' }}>
                   <Routes>
                       <Route path="/" element={
                           <div>
@@ -22,6 +23,11 @@ function App() {
                       <Route path="/config/" element={
                           <div>
                               <Events/>
+                          </div>
+                      } />
+                      <Route path="/stations/" element={
+                          <div>
+                              <Stations/>
                           </div>
                       } />
                   </Routes>
