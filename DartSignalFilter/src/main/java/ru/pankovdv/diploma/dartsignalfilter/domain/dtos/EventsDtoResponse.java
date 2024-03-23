@@ -3,13 +3,10 @@ package ru.pankovdv.diploma.dartsignalfilter.domain.dtos;
 import lombok.Builder;
 import lombok.Value;
 
-@Value
+import java.util.List;
+
 @Builder
-public class StationDto {
-
-    Long id;
-
-    String station;
-
-    Integer eventsCount;
+@Value
+public class EventsDtoResponse {
+    List<EventDto> events;
 }

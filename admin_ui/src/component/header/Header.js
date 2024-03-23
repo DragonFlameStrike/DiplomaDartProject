@@ -32,7 +32,7 @@ const Header = props => {
     // Стиль для активной ссылки
     const activeLinkStyle = {
         ...linkStyle,
-        backgroundColor: 'red', // Цвет фона активной ссылки
+        backgroundColor: '#587cf3', // Цвет фона активной ссылки
     };
 
     return (
@@ -44,7 +44,7 @@ const Header = props => {
                             href="/"
                             style={location.pathname === "/" ? activeLinkStyle : linkStyle}
                         >
-                            <img src="/result.png" alt="bouy icon"/>
+                            <img src="/result.png" alt="result icon"/>
                         </NavLink>
                     </NavItem>
                     <NavItem>
@@ -53,6 +53,14 @@ const Header = props => {
                             style={location.pathname === "/stations/" ? activeLinkStyle : linkStyle}
                         >
                             <img src="/bouy.png" alt="bouy icon"/>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink
+                            href="/events/"
+                            style={location.pathname === "/events/" ? activeLinkStyle : linkStyle}
+                        >
+                            <img src="/event.png" alt="event icon"/>
                         </NavLink>
                     </NavItem>
                 </Nav>

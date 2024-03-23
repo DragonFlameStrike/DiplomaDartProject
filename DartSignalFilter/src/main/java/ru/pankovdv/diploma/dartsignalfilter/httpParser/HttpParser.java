@@ -12,7 +12,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.pankovdv.diploma.dartsignalfilter.domain.Measurement;
 import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.EventEntity;
 import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.EventRepository;
 import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.StationEntity;
@@ -23,17 +22,14 @@ import ru.pankovdv.diploma.dartsignalfilter.httpParser.domain.EventsDto;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
 @Slf4j
-public class httpParser {
+public class HttpParser {
 
     @Autowired
     private StationRepository stationRepository;
@@ -49,11 +45,14 @@ public class httpParser {
     private String endday = "00";
 
 
-    public String parseWithFullUrl(String seriestime) {
+    public String parseWithFullUrl(Long stationId, Long eventId) {
+        var station = stationRepository.findById(stationId).orElseThrow();
+        var event = eventRepository.findById(eventId).orElseThrow();
+
         // URL для GET запроса
-        String url = "https://www.ndbc.noaa.gov/station_page.php?station=56003" +
+        String url = station.getPathUrl() +
                 "&type=2" +
-                "&seriestime=" + seriestime +
+                "&seriestime=" + event.getSeriesTime() +
                 "&startyear=" + startyear +
                 "&startmonth=" + startmonth +
                 "&startday=" + startday +
@@ -70,10 +69,7 @@ public class httpParser {
             Document document = Jsoup.parse(pageContent);
 
             // Извлекаем данные из указанного элемента
-            String data = document.select("textarea#data")
-                    .text();
-
-            return data;
+            return document.select("textarea#data").text();
         } catch (IOException e) {
             e.printStackTrace();
         }

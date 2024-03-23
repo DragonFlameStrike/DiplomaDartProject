@@ -1,21 +1,23 @@
 import React from 'react';
 
-const Station = ({ station }) => {
+const Station = ({ station, currentStation }) => {
 
-    const redirectToEvents = (stationNumber) => {
-        window.location.href = `/events/${stationNumber}`;
+    const redirectToEvents = (id) => {
+        fetch(`http://localhost:8080/api/signal/stations/set-current-station/${id}`)
+        window.location.href = `/events/`;
     };
 
     const buttonStyle = {
         width: '60%',
         height: '150px',
-        backgroundColor: 'white',
         borderRadius: '10px',
-        border: '2px solid red',
-        color: 'black',
+        border: '2px solid',
+        borderColor: 'black',
         fontSize: '24px',
+        backgroundColor: currentStation === station.id ? '#587cf3' : 'white', // Условие для изменения цвета кнопки
+        color: currentStation === station.id ? 'white' : 'black', // Условие для изменения цвета текста кнопки
         textAlign: 'center',
-        cursor: 'pointer'
+        cursor: 'pointer',
     };
 
     const containerStyle = {
@@ -44,7 +46,7 @@ const Station = ({ station }) => {
     return (
         <div>
             <div style={containerStyle}>
-                <button style={buttonStyle} onClick={() => redirectToEvents(station.station.split('=')[1])}>
+                <button style={buttonStyle} onClick={() => redirectToEvents(station.id)}>
                     <div style={stationInfoStyle}>
                         <div style={rowDataStyle}>
                             <div style={cellStyle}>{station.station}</div>
