@@ -3,7 +3,7 @@ import React from 'react';
 const Station = ({ station, currentStation }) => {
 
     const redirectToEvents = (id) => {
-        fetch(`http://localhost:8080/api/signal/stations/set-current-station/${id}`)
+        fetch(`http://localhost:8080/api/signal/config/set-current-station/${id}`)
         window.location.href = `/events/`;
     };
 

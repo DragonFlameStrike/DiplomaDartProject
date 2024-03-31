@@ -4,6 +4,8 @@ import Header from "./component/header/Header";
 import Signals from "./component/signals/Signals";
 import Events from "./component/events/Events";
 import Stations from "./component/stations/Stations";
+import Settings from "./component/settings/Settings";
+import Featured from "./component/featured/Featured";
 
 function App() {
     return (
@@ -32,6 +34,16 @@ function App() {
                         <Route path="/events/" element={
                             <div>
                                 <Events/>
+                            </div>
+                        }/>
+                        <Route path="/settings/" element={
+                            <div>
+                                <Settings/>
+                            </div>
+                        }/>
+                        <Route path="/featured/" element={
+                            <div>
+                                <Featured/>
                             </div>
                         }/>
                     </Routes>

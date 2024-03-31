@@ -15,7 +15,7 @@ const Events = () => {
             const data = await response.json();
             setEvents(data.events);
 
-            const currentStationResponse = await fetch('http://localhost:8080/api/signal/stations/get-config');
+            const currentStationResponse = await fetch('http://localhost:8080/api/signal/config/get-config');
             const config = await currentStationResponse.json();
             setCurrentEvent(config.currentEvent)
         } catch (error) {
@@ -32,7 +32,7 @@ const Events = () => {
 
     const boxStyle = {
         width: '80%',
-        marginLeft: '16%',
+        marginLeft: '17%',
     }
 
     return (
@@ -49,7 +49,6 @@ const Events = () => {
                     </li>
                 ))}
             </ul>
-
         </div>
     );
 };

@@ -34,7 +34,7 @@ class Signal extends React.Component {
         if (!Array.isArray(this.props.signal.measurements)) {
             setTimeout(() => {
                 this.setState({ isLoading: false });
-            }, 1000);
+            }, 2000);
         } else {
             this.setState({ isLoading: false });
         }
@@ -49,9 +49,9 @@ class Signal extends React.Component {
         let data = [];
 
         if (Array.isArray(this.props.signal.measurements)) {
-            let indent = Math.floor(this.props.signal.measurements.length / 10);
+            let indent = Math.floor(this.props.signal.measurements.length / 15);
             let isHeightInMillimeters = false; // Переменная для отслеживания умножения высоты на 1000
-            for (let i = indent; i < this.props.signal.measurements.length - indent; i++) {
+            for (let i = this.props.signal.measurements.length - indent - 1; i >= indent; i--) {
                 const point = this.props.signal.measurements[i];
 
                 const date = new Date(point.time);
@@ -68,14 +68,14 @@ class Signal extends React.Component {
             }
 
 
-                this.options = {
+            this.options = {
                     responsive: true,
                     plugins: {
                         legend: {
                             position: 'top',
                         },
                         title: {
-                            display: true,
+                            display: false,
                             text: this.props.name,
                         },
                     },
@@ -97,8 +97,13 @@ class Signal extends React.Component {
         }
 
         return(
-            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}>
-                <Line options={this.options} data={this.data} />
+            <div style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                textAlign: 'center', // Выравнивание текста по центру
+                padding: '20px' // Добавляем отступы для улучшения визуального вида
+            }}>
+                <h4 style={{ margin: 0 }}>{this.props.name}</h4>
+                <Line options={this.options} data={this.data}  type={"line"}/>
             </div>
         )
     }

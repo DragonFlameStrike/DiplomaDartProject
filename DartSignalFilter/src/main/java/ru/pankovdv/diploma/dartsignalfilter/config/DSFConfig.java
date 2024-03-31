@@ -13,4 +13,16 @@ public class DSFConfig {
     Long currentStation;
 
     Long currentEvent;
+
+    String currentStationName;
+
+    String currentEventDate;
+
+    Double thresholdFrequency = 0.05;
+
+    Double secondThresholdFrequency = 0.025;
+
+    Boolean aproxiEnable = true;
+
+    Integer aproxiTimes = 1;
 }

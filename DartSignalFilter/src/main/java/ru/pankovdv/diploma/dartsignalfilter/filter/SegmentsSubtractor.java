@@ -17,6 +17,7 @@ public class SegmentsSubtractor {
             Segment reducedSegment = reduced.get(i);
             Segment subtractedSegment = subtracted.get(i);
             for (int j = 0; j < subtractedSegment.getMeasurements().size(); j++) {
+                if(reducedSegment.getMeasurements().size()<=j) continue;
                 if(reducedSegment.getMeasurements().get(j).getType()==1) continue;
                 double subtractedHeight = (reducedSegment.getMeasurements().get(j).getHeight() - subtractedSegment.getMeasurements().get(j).getHeight());
 

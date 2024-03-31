@@ -2,12 +2,14 @@ package ru.pankovdv.diploma.dartsignalfilter.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.pankovdv.diploma.dartsignalfilter.config.DSFConfig;
 import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.Cleaner;
 import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.LinearInterpolator;
 import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.MeasurementSplitter;
 import ru.pankovdv.diploma.dartsignalfilter.domain.Measurement;
 import ru.pankovdv.diploma.dartsignalfilter.domain.ResultDto;
 import ru.pankovdv.diploma.dartsignalfilter.domain.Segment;
+import ru.pankovdv.diploma.dartsignalfilter.filter.CustomFilter;
 import ru.pankovdv.diploma.dartsignalfilter.filter.FFT;
 import ru.pankovdv.diploma.dartsignalfilter.filter.SegmentsSubtractor;
 
@@ -21,11 +23,15 @@ public class SignalService {
     @Autowired
     private FFT fft;
     @Autowired
+    private CustomFilter customFilter;
+    @Autowired
     private MeasurementSplitter measurementSplitter;
     @Autowired
     private LinearInterpolator linearInterpolator;
     @Autowired
     private SegmentsSubtractor segmentsSubtractor;
+    @Autowired
+    DSFConfig config;
 
     public ResultDto filter(List<Measurement> signal) {
         long startTime = System.nanoTime();
@@ -43,11 +49,18 @@ public class SignalService {
         // Добавляем доп точки в сегменты для однородности сигнала
         List<Segment> intrSegments = new ArrayList<>();
         for (Segment segment: segments) {
-            intrSegments.add(linearInterpolator.interpolateSegment(segment));
+            var interpolateSegment = linearInterpolator.interpolateSegment(segment);
+            var trimSegment = cleaner.trimSegment(interpolateSegment);
+            intrSegments.add(trimSegment);
         }
 
         //Фильтруем
-        List<Segment> filteredSegments = fft.filter(intrSegments);
+        List<Segment> filteredSegments = fft.filter(intrSegments, config.getThresholdFrequency());
+
+        for (int i = 0;i< config.getAproxiTimes(); i++) {
+            filteredSegments = customFilter.filter(filteredSegments);
+        }
+
         //Вычитаем из основного сигнала, содержащего обе компоненты, сигнал волнения океана
         List<Segment> tsunamiSegments = segmentsSubtractor.subtract(intrSegments,filteredSegments);
 

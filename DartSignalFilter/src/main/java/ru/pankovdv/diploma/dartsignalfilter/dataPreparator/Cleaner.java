@@ -31,7 +31,30 @@ public class Cleaner {
             prevTime = currentTime;
         }
     }
-    public void clearSegments(List<Segment> segments){
+
+    public void clearSegments(List<Segment> segments) {
         segments.removeIf(s -> s.getMeasurements().isEmpty() || s.getMeasurements().size() < 3);
+    }
+
+    public Segment trimSegment(Segment segment) {
+        var measurements = segment.getMeasurements();
+
+        // Получаем текущий размер массива
+        int currentSize = measurements.size();
+
+        // Определяем ближайшую степень двойки, большую или равную текущему размеру
+        int newSize = 1;
+        while (newSize < currentSize) {
+            newSize *= 2;
+        }
+        newSize/=2;
+
+        int elementsToRemove = currentSize - newSize;
+
+        if (elementsToRemove > 0) {
+             measurements.subList(0, elementsToRemove).clear();
+        }
+        segment.setMeasurements(measurements);
+        return segment;
     }
 }

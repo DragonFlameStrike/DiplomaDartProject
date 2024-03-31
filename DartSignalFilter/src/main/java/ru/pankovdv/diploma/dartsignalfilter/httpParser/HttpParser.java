@@ -77,6 +77,10 @@ public class HttpParser {
     }
 
     public void parseAllStations() {
+
+        eventRepository.deleteAll();
+        stationRepository.deleteAll();
+
         log.info("Парсинг всех станций: старт.");
         try (BufferedReader reader = new BufferedReader(new FileReader("stationlist.txt"))) {
             String stationUrl;

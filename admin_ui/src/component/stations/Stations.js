@@ -15,7 +15,7 @@ const Stations = () => {
             const data = await response.json();
             setStations(data.stations);
 
-            const currentStationResponse = await fetch('http://localhost:8080/api/signal/stations/get-config');
+            const currentStationResponse = await fetch('http://localhost:8080/api/signal/config/get-config');
             const config = await currentStationResponse.json();
             setCurrentStation(config.currentStation)
         } catch (error) {

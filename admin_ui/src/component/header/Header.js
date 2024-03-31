@@ -38,7 +38,7 @@ const Header = props => {
     return (
         <header>
             <div style={sidebarStyle}>
-                <Nav vertical>
+                <Nav vertical style={{ display: 'flex', flexDirection: 'column' }}>
                     <NavItem>
                         <NavLink
                             href="/"
@@ -61,6 +61,22 @@ const Header = props => {
                             style={location.pathname === "/events/" ? activeLinkStyle : linkStyle}
                         >
                             <img src="/event.png" alt="event icon"/>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink
+                            href="/featured/"
+                            style={location.pathname === "/featured/" ? activeLinkStyle : linkStyle}
+                        >
+                            <img src="/featured.png" alt="event icon"/>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem style={{ marginTop: '650px' }}>
+                        <NavLink
+                            href="/settings/"
+                            style={location.pathname === "/settings/" ? activeLinkStyle : linkStyle}
+                        >
+                            <img src="/settings.png" alt="event icon"/>
                         </NavLink>
                     </NavItem>
                 </Nav>

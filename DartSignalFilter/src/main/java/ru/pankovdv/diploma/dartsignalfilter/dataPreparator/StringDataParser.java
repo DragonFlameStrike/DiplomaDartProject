@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class StringDataParser implements Parser{
                 Measurement measurement = new Measurement(time, height, type);
                 measurements.add(measurement);
             }
+
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }

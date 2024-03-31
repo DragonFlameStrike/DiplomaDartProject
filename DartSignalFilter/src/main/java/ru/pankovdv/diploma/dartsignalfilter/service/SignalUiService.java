@@ -7,14 +7,8 @@ import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.FileParser;
 import ru.pankovdv.diploma.dartsignalfilter.dataPreparator.StringDataParser;
 import ru.pankovdv.diploma.dartsignalfilter.domain.Measurement;
 import ru.pankovdv.diploma.dartsignalfilter.domain.ResultDto;
-import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.EventDto;
-import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.EventsDtoResponse;
-import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.StationDto;
-import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.StationsDtoResponse;
-import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.EventEntity;
-import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.EventRepository;
-import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.StationEntity;
-import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.StationRepository;
+import ru.pankovdv.diploma.dartsignalfilter.domain.dtos.*;
+import ru.pankovdv.diploma.dartsignalfilter.domain.repositories.*;
 import ru.pankovdv.diploma.dartsignalfilter.httpParser.HttpParser;
 
 import java.util.ArrayList;
@@ -42,6 +36,9 @@ public class SignalUiService {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private FeaturedSignalRepository featuredSignalRepository;
 
     public ResultDto filter() {
         List<Measurement> signal;
@@ -86,5 +83,39 @@ public class SignalUiService {
             eventDtos.add(eventDto);
         }
         return EventsDtoResponse.builder().events(eventDtos).build();
+    }
+
+    public String getStationName(Long id) {
+        return stationRepository.findById(id).orElseThrow().getStationName();
+    }
+
+    public String getEventDate(Long id) {
+        return eventRepository.findById(id).orElseThrow().getSeriesTime();
+    }
+
+    public void saveSignal(SaveSignalDtoRequest signalRequest) {
+        var entity = new FeaturedSignalEntity();
+        entity.setMainSignal(signalRequest.getExtrapolatedSignal());
+        entity.setFilteredSignal(signalRequest.getTsunamiSignal());
+        entity.setSeriesTime(signalRequest.getEventDate());
+        entity.setStationName(signalRequest.getStationName());
+        featuredSignalRepository.save(entity);
+    }
+
+    public FeaturedDtoResponse getFeatured() {
+        var featuredList = featuredSignalRepository.findAll();
+        var firstFeatured = featuredList.get(0);
+        var secondFeatured = featuredList.get(1);
+
+        return FeaturedDtoResponse.builder()
+                .firstEventDate(firstFeatured.getSeriesTime())
+                .firstStationName(firstFeatured.getStationName())
+                .firstMainSignal(firstFeatured.getMainSignal())
+                .firstFilteredSignal(firstFeatured.getFilteredSignal())
+                .secondEventDate(secondFeatured.getSeriesTime())
+                .secondStationName(secondFeatured.getStationName())
+                .secondMainSignal(secondFeatured.getMainSignal())
+                .secondFilteredSignal(secondFeatured.getFilteredSignal())
+                .build();
     }
 }

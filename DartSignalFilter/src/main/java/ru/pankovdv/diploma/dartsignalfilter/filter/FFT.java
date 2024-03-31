@@ -1,6 +1,8 @@
 package ru.pankovdv.diploma.dartsignalfilter.filter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.pankovdv.diploma.dartsignalfilter.config.DSFConfig;
 import ru.pankovdv.diploma.dartsignalfilter.domain.Measurement;
 import ru.pankovdv.diploma.dartsignalfilter.domain.Segment;
 
@@ -10,7 +12,10 @@ import java.util.List;
 @Component
 public class FFT {
 
-    public  List<Segment> filter(List<Segment> segments){
+    @Autowired
+    DSFConfig config;
+
+    public  List<Segment> filter(List<Segment> segments, Double thresholdFrequency){
         List<Segment> out = new ArrayList<>();
         for (Segment segment: segments) {
 
@@ -27,7 +32,6 @@ public class FFT {
 
             FFT.fft(a, b, false); // Применяем прямое преобразование Фурье
 
-            double thresholdFrequency = 0.05; // Задаем пороговую частоту 0.000978
             filterFrequencies(a, b, thresholdFrequency); // Фильтруем частоты
 
             FFT.fft(a, b, true); // Применяем обратное преобразование Фурье
@@ -43,7 +47,7 @@ public class FFT {
     }
     private static int nextPowerOfTwo(int n) {
         int power = 1;
-        while (power < n) {
+        while (power <= n) {
             power *= 2;
         }
         return power;
